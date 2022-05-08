@@ -103,6 +103,9 @@ generate_network() {
 
 	[ -n "$ifname" -o -n "$ports" ] || return
 
+	# Shutdown DHCP
+	uci set dhcp.lan.ignore=1
+
 	# Force bridge for "lan" as it may have other devices (e.g. wireless)
 	# bridged
 	[ "$1" = "lan" -a -z "$ports" ] && {
@@ -165,7 +168,7 @@ generate_network() {
 			# fixup IPv6 slave interface if parent is a bridge
 			[ "$type" = "bridge" ] && ifname="br-$1"
 
-			# uci set network.$1.proto='dhcp'
+			uci set network.$1.proto='dhcp'
 			[ -e /proc/sys/net/ipv6 ] && {
 				uci -q batch <<-EOF
 					delete network.${1}6
